@@ -1,0 +1,25 @@
+{
+  "name": "bijin-tokei-bot",
+  "version": "1.0.0",
+  "description": "Slack bot for bijin-tokei.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/nobukatsu/bijin-tokei-bot.git"
+  },
+  "author": "nobukatsu",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/nobukatsu/bijin-tokei-bot/issues"
+  },
+  "homepage": "https://github.com/nobukatsu/bijin-tokei-bot#readme",
+  "dependencies": {
+    "botkit": "^0.5.2",
+    "cron": "^1.2.1",
+    "moment": "^2.18.1",
+    "request": "^2.81.0"
+  }
+}
