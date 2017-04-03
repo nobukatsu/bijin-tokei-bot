@@ -2,7 +2,7 @@
 
 const Botkit = require('botkit');
 const CronJob = require('cron').CronJob;
-const moment = require('moment');
+const moment = require('moment-timezone');
 const request = require('request');
 
 const TOKEN = process.env.token;
@@ -32,7 +32,7 @@ const job = new CronJob({
     onTick: () => {
         const messageObj = getMessageObj();
         
-        const hours = moment().format('HH');
+        const hours = moment().tz('Asia/Tokyo').format('HH');
         const minutes = '00';
         const url = 'http://www.bijint.com/assets/pict/jp/pc/' + hours + '' + minutes +'.jpg'
         
