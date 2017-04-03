@@ -14,6 +14,7 @@ if (!TOKEN || !CHANNEL_ID) {
 }
 
 const controller = Botkit.slackbot({
+    hostname: '0.0.0.0', // For heroku (https://github.com/howdyai/botkit/issues/491)
     debug: false
 });
 
