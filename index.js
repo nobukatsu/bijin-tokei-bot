@@ -4,9 +4,11 @@ const Botkit = require('botkit');
 const CronJob = require('cron').CronJob;
 const moment = require('moment-timezone');
 const request = require('request');
+const randomInt = require('random-int');
 
 const TOKEN = process.env.token;
 const CHANNEL_ID = process.env.channel;
+const RANDOM = process.env.random;
 
 if (!TOKEN || !CHANNEL_ID) {
   console.log('Error: Specify token and channle in environment');
@@ -32,18 +34,26 @@ const job = new CronJob({
     onTick: () => {
         const messageObj = getMessageObj();
         
-        const hours = moment().tz('Asia/Tokyo').format('HH');
-        const minutes = '00';
-        const url = 'http://www.bijint.com/assets/pict/jp/pc/' + hours + '' + minutes +'.jpg'
+        const hoursNow = moment().tz('Asia/Tokyo').format('HH');
+        const hours = RANDOM ? ('0' + randomInt(24)).slice(-2) : hoursNow;
+        const minutes = !RANDOM || hours == '24' ? '00' : ('0' + randomInt(59)).slice(-2);
         
-        getBijinData(hours, minutes).then(data => {
-            messageObj.text = hours + '時になりました。\n' + url + '\n' +
-                "名前:" + data.name + "\n" +
+        getBijinData(hoursNow, minutes).then(data => {
+            let text = hoursNow + '時になりました。\n';
+            if(RANDOM){
+                text += data.imageUrls[randomInt(data.imageUrls.length - 1)] + '\n';
+            }else{
+                text += 'http://www.bijint.com/assets/pict/jp/pc/' + hoursNow + '' + minutes +'.jpg' + '\n';
+            }
+            
+            text += "名前:" + data.name + "\n" +
                 "誕生日:" + data.birthday + "\n" +
                 "出身:" + data.home + "\n" +
                 "職業:" + data.occupation + "\n" +
                 "身長:" + data.height;
-                
+            
+            messageObj.text =  text;
+            
             bot.api.chat.postMessage(messageObj);
         }).catch(err => {
             console.log(err);
@@ -80,12 +90,18 @@ function getBijinData(hours, minutes){
         request.get(options, (err, res, body) => {
             if (!err && res.statusCode == 200) {
                 const bijinData = {};
-                bijinData.imageUrls = body.result.model_images;
+                
+                bijinData.imageUrls = [];
+                if(body.result.model_images){
+                    body.result.model_images.forEach(val =>{
+                        bijinData.imageUrls.push(val.image_path);
+                    });
+                }
                 bijinData.name = body.result.profile_info[0].note;
                 bijinData.birthday = body.result.profile_info[1].note;
                 bijinData.home = body.result.profile_info[2].note;
                 bijinData.occupation = body.result.profile_info[3].note;
-                bijinData.height = body.result.profile_info[5].note;
+                bijinData.height = body.result.profile_info[5] ? body.result.profile_info[5].note : '不明';
                 
                 resolve(bijinData);
             } else {
